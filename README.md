@@ -1,3 +1,6 @@
+Warning: truncated output (original token count: 5073)
+Total output lines: 258
+
 # LibreTV
 
 LibreTV Next.js 迁移版：免费在线视频聚合搜索与观看平台。基于 Next.js 15（App Router）+ TypeScript + Tailwind CSS，播放内核为 ArtPlayer + hls.js，支持亮暗双主题。
@@ -83,6 +86,18 @@ PASSWORD=your-password npm run build
 PASSWORD=your-password npm start   # 监听 8080
 ```
 
+### Cloudflare Workers
+
+本项目包含服务端 API，需使用 OpenNext 部署到 Workers；Cloudflare Pages 的静态导出配置不适用。部署前请在 Cloudflare Workers 的设置中添加 `PASSWORD` 密钥（不要提交到仓库），可选设置 `PROXY_SECRET`。要预置点播、直播源或订阅，在 Workers 变量中设置 `DEFAULT_SOURCES`、`DEFAULT_LIVE_SOURCES` 或 `DEFAULT_SUBSCRIPTIONS`。仓库不会内置未经确认的第三方影视源；未配置时可在站点设置中添加订阅。
+
+```bash
+npm install
+npm run preview   # 在 Workers 运行时本地预览
+npm run deploy    # 部署到 wrangler.jsonc 中命名的 Worker
+```
+
+首次部署后，Cloudflare 会为该 Worker 分配 `workers.dev` 地址。该 Worker 与已有的 Pages 项目相互独立。
+
 ### 环境变量
 
 | 变量 | 必填 | 说明 |
@@ -109,11 +124,7 @@ PASSWORD=your-password npm start   # 监听 8080
 2. **搜索**：勾选点播源后输入片名；搜索通过服务端聚合，个别源失败不影响整体结果。
 3. **播放**：详情弹窗选择剧集进入 `/watch`；支持快捷键（空格/←→/↑↓/F/Alt+←→）、移动端长按 3 倍速、自动连播、换源测速。观看/暂停时后续分片自动缓存到本地（设置可关），播放页可「下载本集」（TS/MP4）离线观看。
 4. **进度与历史**：自动保存在本设备 IndexedDB，仅定位信息入库，播放时自动同步最新剧集。
-5. **配置迁移**：设置 → 数据 → 配置导入导出（兼容旧版 LibreTV-Settings JSON 的历史记录迁移）。
-
-## 直播 / IPTV
-
-1. **添加直播源**：设置 → 源管理 → 直播源 → 填入 M3U/M3U8 地址（可选填 XMLTV 节目单地址），添加后自动探活并显示频道数量；也可在「源管理 → 数据源订阅」中与点播源一起订阅导入；部署者还可用 `DEFAULT_LIVE_SOURCES` 环境变量预置。
+5. **配置迁…73 tokens truncated…数量；也可在「源管理 → 数据源订阅」中与点播源一起订阅导入；部署者还可用 `DEFAULT_LIVE_SOURCES` 环境变量预置。
 2. **观看**：进入「直播」页，按分组标签筛选或搜索频道，点击即播；支持 HLS（m3u8）与 HTTP-FLV 两种直播流，直连失败自动走代理通道重试。
 3. **节目单**：频道带 `tvg-id` 且订阅配置了 EPG 地址时，展示当前/接下来节目与播放进度。
 4. **收藏与导出**：频道可收藏；订阅可一键导出为标准 M3U 文件，供 PotPlayer / VLC 等外部播放器使用。

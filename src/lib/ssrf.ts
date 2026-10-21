@@ -59,8 +59,15 @@ export async function isBlockedByDNS(urlString: string): Promise<boolean> {
     if (/^\d{1,3}(\.\d{1,3}){3}$/.test(hostname) || hostname.includes(':')) {
       return isPrivateIP(hostname);
     }
-    const result = await dns.lookup(hostname, { all: true });
-    return result.some((r) => isPrivateIP(r.address));
+    // Workers does not implement dns.lookup; resolve4/resolve6 are supported
+    // by its DNS-over-HTTPS compatibility layer and also work in Node.js.
+    const answers = await Promise.allSettled([
+      dns.resolve4(hostname),
+      dns.resolve6(hostname),
+    ]);
+    return answers.some(
+      (answer) => answer.status === 'fulfilled' && answer.value.some(isPrivateIP)
+    );
   } catch {
     return false; // 解析失败不阻断，交给后续请求处理
   }
